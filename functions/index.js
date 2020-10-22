@@ -30,7 +30,7 @@ const validateIdToken = (req, res, next) => {
       })
 };
 
-app.get('/users', (req, res) => {
+app.get('/users', validateIdToken, (req, res) => {
    admin
    .firestore()
    .collection('users')
