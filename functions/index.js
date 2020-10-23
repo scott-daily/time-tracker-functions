@@ -30,7 +30,8 @@ const validateIdToken = (req, res, next) => {
       })
 };
 
-app.get('/users', validateIdToken, (req, res) => {
+app.get('/users', (req, res) => {
+   console.log('ran users');
    admin
    .firestore()
    .collection('users')
@@ -51,10 +52,12 @@ app.get('/users', validateIdToken, (req, res) => {
    .catch((err) => console.error(err));
 })
 
-app.post('/users', (req, res) => {
-   const newUser = {
-      jobs: req.body.jobs,
+app.post('/jobs', validateIdToken, (req, res) => {
+   const newJob = {
       uid: req.body.uid,
+      title: req.body.title,
+      rate: req.body.rate,
+
       createdAt: new Date().toISOString()
    };
 
