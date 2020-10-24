@@ -30,6 +30,14 @@ const validateIdToken = (req, res, next) => {
       })
 };
 
+exports.newUser = functions.auth.user().onCreate((user) => {
+   const userMap = {
+     uid: user.uid,
+     email: user.email,
+   };
+   return admin.firestore().collection('users').doc(user.uid).set(userMap);
+ });
+
 app.get('/users', (req, res) => {
    console.log('ran users');
    admin
