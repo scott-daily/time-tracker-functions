@@ -32,13 +32,15 @@ const validateIdToken = (req, res, next) => {
 
 exports.newUser = functions.auth.user().onCreate((user) => {
    const userMap = {
-     uid: user.uid,
-     email: user.email,
+      name: user.displayName,
+      uid: user.uid,
+      email: user.email,
+      createdAt: admin.firestore.Timestamp.fromDate(new Date())
    };
    return admin.firestore().collection('users').doc(user.uid).set(userMap);
  });
 
-app.get('/users', (req, res) => {
+app.get('/users', validateIdToken, (req, res) => {
    console.log('ran users');
    admin
    .firestore()
@@ -65,7 +67,6 @@ app.post('/jobs', validateIdToken, (req, res) => {
       uid: req.body.uid,
       title: req.body.title,
       rate: req.body.rate,
-
       createdAt: new Date().toISOString()
    };
 
