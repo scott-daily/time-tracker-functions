@@ -21,7 +21,7 @@ const validateIdToken = (req, res, next) => {
 
    admin.auth().verifyIdToken(idToken)
       .then(decodedToken => {
-         let uid = decodedToken.uid;
+         req.body.uid = decodedToken.uid;
          console.log('ID Token decoded', decodedToken);
          return next();
       }).catch(function(error) {
@@ -62,20 +62,42 @@ app.get('/users', validateIdToken, (req, res) => {
    .catch((err) => console.error(err));
 })
 
+app.get('/jobs', validateIdToken, (req, res) => {
+   console.log('ran users');
+   admin
+   .firestore()
+   .collection(`users/${req.body.uid}/jobs`)
+   .orderBy('createdAt', 'desc')
+   .get()
+   .then((querySnapshot) => {
+      let users = [];
+      querySnapshot.forEach((doc) => {
+         users.push({
+            userId: doc.id,
+            jobs: doc.data().jobs,
+            uid: doc.data().uid,
+            createdAt: doc.data().createdAt
+         });
+      });
+      return res.json(users);
+   })
+   .catch((err) => console.error(err));
+})
+
 app.post('/jobs', validateIdToken, (req, res) => {
    const newJob = {
       uid: req.body.uid,
       title: req.body.title,
       rate: req.body.rate,
-      createdAt: new Date().toISOString()
+      createdAt: admin.firestore.Timestamp.fromDate(new Date())
    };
 
    admin
       .firestore()
-      .collection('users')
-      .add(newUser)
+      .collection(`users/${req.body.uid}/jobs`)
+      .add(newJob)
       .then(doc => {
-         res.json({ message: `document ${doc.id} created successfully`})
+         res.json({ message: `job ${doc.id} created successfully`})
       })
       .catch(err => {
          res.status(500).json({ error: err});
