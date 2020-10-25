@@ -69,7 +69,6 @@ app.get('/users', validateIdToken, (req, res) => {
 // Get all jobs from a specific user
 
 app.get('/jobs', validateIdToken, (req, res) => {
-   console.log('ran users');
    admin
    .firestore()
    .collection(`users/${req.body.uid}/jobs`)
@@ -93,7 +92,7 @@ app.get('/jobs', validateIdToken, (req, res) => {
 // Add a job to the jobs collection for a specific user
 
 app.post('/jobs', validateIdToken, (req, res) => {
-   const newJob = {
+   const jobMap = {
       uid: req.body.uid,
       title: req.body.title,
       rate: req.body.rate,
@@ -102,8 +101,7 @@ app.post('/jobs', validateIdToken, (req, res) => {
 
    admin
       .firestore()
-      .collection(`users/${req.body.uid}/jobs`)
-      .add(newJob)
+      .collection('users').doc(req.body.uid).collection('jobs').doc(req.body.title).set(jobMap)
       .then(doc => {
          res.json({ message: `job ${doc.id} created successfully`})
       })
