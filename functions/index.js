@@ -30,6 +30,8 @@ const validateIdToken = (req, res, next) => {
       })
 };
 
+// Uses firebase auth that watches for user creation which triggers a new user to be added to the db
+
 exports.newUser = functions.auth.user().onCreate((user) => {
    const userMap = {
       name: user.displayName,
@@ -39,6 +41,8 @@ exports.newUser = functions.auth.user().onCreate((user) => {
    };
    return admin.firestore().collection('users').doc(user.uid).set(userMap);
  });
+
+// Get all users 
 
 app.get('/users', validateIdToken, (req, res) => {
    console.log('ran users');
@@ -62,6 +66,8 @@ app.get('/users', validateIdToken, (req, res) => {
    .catch((err) => console.error(err));
 })
 
+// Get all jobs from a specific user
+
 app.get('/jobs', validateIdToken, (req, res) => {
    console.log('ran users');
    admin
@@ -70,19 +76,21 @@ app.get('/jobs', validateIdToken, (req, res) => {
    .orderBy('createdAt', 'desc')
    .get()
    .then((querySnapshot) => {
-      let users = [];
+      let jobs = [];
       querySnapshot.forEach((doc) => {
-         users.push({
-            userId: doc.id,
-            jobs: doc.data().jobs,
+         jobs.push({
             uid: doc.data().uid,
+            title: doc.data().title,
+            rate: doc.data().rate,
             createdAt: doc.data().createdAt
          });
       });
-      return res.json(users);
+      return res.json(jobs);
    })
    .catch((err) => console.error(err));
 })
+
+// Add a job to the jobs collection for a specific user
 
 app.post('/jobs', validateIdToken, (req, res) => {
    const newJob = {
