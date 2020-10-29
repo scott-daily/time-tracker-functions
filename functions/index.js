@@ -87,6 +87,21 @@ app.get('/jobs', validateIdToken, (req, res) => {
       .catch((err) => console.error(err));
 })
 
+// Get a specific job from logged in user below
+
+app.get('/jobs/:jobId', validateIdToken, async (req, res) => {
+   const jobRef = db.collection('users').doc(req.body.uid).collection('jobs').doc(req.params.jobId);
+   const doc = await jobRef.get();
+   
+   if (!doc.exists) {
+      console.log('No such document');
+      return res.status(400).json({ error: 'No document found'});
+   } else {
+      console.log('Document data:', doc.data());
+      return res.status(200).json({ data: doc.data() });
+   }
+});
+
 // Add a job to the jobs collection for a specific user.  
 // TODO: prevent user from creating a job with duplicate title
 
