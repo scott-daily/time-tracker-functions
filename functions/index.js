@@ -119,26 +119,25 @@ app.post('/jobs', validateIdToken, (req, res) => {
 // Delete a job for a specific user ID and job title
 // TODO: create delete button in front end and add the title with req params
 // EX: <Link to={`/deletejob/${job.title}`}>{user.name}</Link>
-/*
-app.delete('/deletejob', validateIdToken, (req, res) => {
-   const jobRef = db.doc(`/users/${req.body.uid}/jobs/${req.body.title}`);
+
+app.delete('/deletejob/:jobId', validateIdToken, (req, res) => {
+   const jobRef = db.collection('users').doc(req.body.uid).collection('jobs').doc(req.params.jobId);
    jobRef
       .get()
       .then((doc) => {
          if (!doc.exists) {
             return response.status(404).json({ error: 'Job not found' });
          }
-         return document.delete();
+         doc.ref.delete();
       })
       .then(() => {
-         response.json({ message: 'Delete successful'});
+         res.json({ message: 'Deletion successful'});
       })
       .catch((err) => {
          console.log(err);
          return res.status(500).json({ error: err });
       });
 });
-*/
 
 // Edit a job for a specific user.
 // TODO: May need to adjust req params or update params
