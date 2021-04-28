@@ -33,7 +33,7 @@ const validateIdToken = (req, res, next) => {
       })
 };
 
-// Uses firebase auth that watches for user creation which triggers a new user to be added to the db
+// Uses firebase auth, which watches for user creation which triggers a new user to be added to the db
 
 exports.newUser = functions.auth.user().onCreate((user) => {
    const userMap = {
